@@ -4,13 +4,13 @@ namespace PicUnlocker.Services
 {
     public interface IPictureUnwrapper
     {
-        public byte[] GetBytesFromPicture(FileStream pictureStream);
+        public byte[] GetBytesFromPicture(string pictureFilePath);
         
-        public byte[] RemoveHeaderBytes(FileStream pictureStream);
+        public byte[] RemoveHeaderBytes(string pictureFilePath);
         
         public byte[] RemoveHeaderBytes(byte[] pictureInBytes);
         
-        public byte[] RemoveTailBytes(FileStream pictureStream);
+        public byte[] RemoveTailBytes(string pictureFilePath);
         
         public byte[] RemoveTailBytes(byte[] pictureInBytes);
     }
