@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net5.0</TargetFramework>
+        <LangVersion>9</LangVersion>
+        <Nullable>disable</Nullable>
+    </PropertyGroup>
+<ItemGroup>
+    <None Update="etc/test.png" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
