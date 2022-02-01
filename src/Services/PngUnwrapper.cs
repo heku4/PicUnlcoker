@@ -14,6 +14,8 @@ namespace PicUnlocker.Services
             
         }
         public byte[] GetBytesFromPicture(string pictureFilePath) =>  File.ReadAllBytes(pictureFilePath);
+        public byte[] GetHeaderBytes(string pictureFilePath) =>  File.ReadAllBytes(pictureFilePath).Take(SIGNATURE_LENGTH).ToArray();
+        public byte[] GetHeaderBytes(byte[] pictureInBytes) => pictureInBytes.Take(SIGNATURE_LENGTH).ToArray();
         
         public byte[] RemoveHeaderBytes(string pictureFilePath)
         {
@@ -30,5 +32,8 @@ namespace PicUnlocker.Services
         }
 
         public byte[] RemoveTailBytes(byte[] pictureInBytes) => pictureInBytes.SkipLast(END_CHUNK_LENGTH).ToArray();
+        
+        public byte[] GetTailBytes(string pictureFilePath) =>  File.ReadAllBytes(pictureFilePath).Take(END_CHUNK_LENGTH).ToArray();
+        public byte[] GetTailBytes(byte[] pictureInBytes) => pictureInBytes.Take(END_CHUNK_LENGTH).ToArray();
     }
 }

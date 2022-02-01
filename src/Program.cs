@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using PicUnlocker.Services;
 
 namespace PicUnlocker
 {
@@ -8,14 +9,14 @@ namespace PicUnlocker
     {
         static void Main(string[] args)
         {
-            var pictureName = Environment.GetEnvironmentVariable("PIC_NAME");
+            var pictureName = Environment.GetEnvironmentVariable("PIC_PATH");
             UnwrapPicture(pictureName);
         }
-        
+
         static void UnwrapPicture(string picName)
         {
             var dirPath = Directory.GetCurrentDirectory();
-            var filePath = dirPath + $"/etc/{picName}.png";
+            var filePath = dirPath + $"/etc/{picName}";
             if (!Directory.Exists(dirPath))
             {
                 Console.WriteLine("Error. Incorrect path");
@@ -27,18 +28,18 @@ namespace PicUnlocker
                 Console.WriteLine("Error. File not exist");
                 return;
             }
-///180x215
-/// каждый байт можно закодировать как два хекс числа
-/// то-есть 4 бита одним числом в шестнадцатиричной системе
 
-            var fs = File.ReadAllBytes(filePath);
-            Console.Write($"Bytes count: {fs.Length}\n");
+            var pngUnwrapper = new PngUnwrapper();
 
-            
-            
-            var dataFromPic = BitConverter.ToString(fs).Replace("-", " ");;
-            Console.Write($"Data: {dataFromPic}\n");
+            var picBytes = pngUnwrapper.GetBytesFromPicture(filePath);
+            var picSignatureBytes = pngUnwrapper.GetHeaderBytes(picBytes);
+            var picTailBytes = pngUnwrapper.GetTailBytes(picBytes);
+            var chunks = pngUnwrapper.RemoveHeaderBytes(pngUnwrapper.RemoveHeaderBytes(picBytes));
 
+            Console.WriteLine($"Total bytes: {picBytes.Length}\n");
+            Console.WriteLine($"Signature: {BitConverter.ToString(picSignatureBytes).Replace("-", " ")}\n");
+            Console.WriteLine($"Main chunks: {BitConverter.ToString(chunks).Replace("-", " ")}\n");
+            Console.WriteLine($"Tail: {BitConverter.ToString(picTailBytes).Replace("-", " ")}\n");
         }
     }
 }
