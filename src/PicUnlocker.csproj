@@ -6,6 +6,10 @@
         <LangVersion>9</LangVersion>
         <Nullable>disable</Nullable>
     </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+    </ItemGroup>
 <ItemGroup>
     <None Update="etc/test.png" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>

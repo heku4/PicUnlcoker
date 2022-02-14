@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Text;
 using PicUnlocker.Services;
@@ -9,7 +10,7 @@ namespace PicUnlocker
     {
         static void Main(string[] args)
         {
-            var pictureName = Environment.GetEnvironmentVariable("PIC_PATH");
+            var pictureName = Environment.GetEnvironmentVariable("PIC_NAME");
             UnwrapPicture(pictureName);
         }
 
@@ -40,6 +41,38 @@ namespace PicUnlocker
             Console.WriteLine($"Signature: {BitConverter.ToString(picSignatureBytes).Replace("-", " ")}\n");
             Console.WriteLine($"Main chunks: {BitConverter.ToString(chunks).Replace("-", " ")}\n");
             Console.WriteLine($"Tail: {BitConverter.ToString(picTailBytes).Replace("-", " ")}\n");
+
+            FloydSteinbergDithering(filePath);
+        }
+
+        static void FloydSteinbergDithering(string filePath)
+        {
+            ///
+            /// Floyd–Steinberg dithering
+            /// Only for windows os
+            ///                 X      7/16
+            ///     3 / 16   5 / 16   1 / 16
+
+            var pixelsImage = new Bitmap(Image.FromFile(filePath));
+            var bitPaleteSize = 1;
+
+            for (int y = 0; y < pixelsImage.Height; y++)
+            {
+                for (int x = 0; x < pixelsImage.Width; x++)
+                {
+                    var currentPixel = pixelsImage.GetPixel(x, y);
+                    Console.WriteLine($"Current position: {x}, {y}");
+
+                    var output = $"R:{currentPixel.R.ToString()}|G:{currentPixel.G.ToString()}|B:{currentPixel.B.ToString()}";
+
+                    Console.WriteLine(output);
+                }
+            }            
+        }
+
+        static void CalculateDitheringError(uint x, uint y)
+        {
+
         }
     }
 }

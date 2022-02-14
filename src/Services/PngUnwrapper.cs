@@ -6,6 +6,9 @@ namespace PicUnlocker.Services
 {
     public class PngUnwrapper: IPictureUnwrapper
     {
+        /// <summary>
+        /// PNG standard https://www.w3.org/TR/2003/REC-PNG-20031110/
+        /// </summary>
         private const int SIGNATURE_LENGTH = 8;
         private const int END_CHUNK_LENGTH = 4;
 
@@ -13,6 +16,7 @@ namespace PicUnlocker.Services
         {
             
         }
+        #region IPictureUnwrapper realisation
         public byte[] GetBytesFromPicture(string pictureFilePath) =>  File.ReadAllBytes(pictureFilePath);
         public byte[] GetHeaderBytes(string pictureFilePath) =>  File.ReadAllBytes(pictureFilePath).Take(SIGNATURE_LENGTH).ToArray();
         public byte[] GetHeaderBytes(byte[] pictureInBytes) => pictureInBytes.Take(SIGNATURE_LENGTH).ToArray();
@@ -35,5 +39,10 @@ namespace PicUnlocker.Services
         
         public byte[] GetTailBytes(string pictureFilePath) =>  File.ReadAllBytes(pictureFilePath).Take(END_CHUNK_LENGTH).ToArray();
         public byte[] GetTailBytes(byte[] pictureInBytes) => pictureInBytes.Take(END_CHUNK_LENGTH).ToArray();
+        #endregion
+
+        #region ByPixel unwrapping
+
+        #endregion
     }
 }
