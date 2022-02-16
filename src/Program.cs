@@ -11,6 +11,17 @@ namespace PicUnlocker
         static void Main(string[] args)
         {
             var pictureName = string.Empty;
+            int paletteSize = 0;
+            bool needToUnwrap = true;
+            if (args.Length > 1)
+            {
+                pictureName = args[0];
+                int.TryParse(args[1], out paletteSize);
+                if ( args[2] == "-d")
+                {
+                    needToUnwrap = false;
+                }
+            }
 
             if (args.Length != 0)
             {
@@ -25,14 +36,9 @@ namespace PicUnlocker
                 Console.Error.WriteLine("No picture name given");
                 return;
             }
-            //var enviromentSystem = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
-            UnwrapPicture(pictureName);
-        }
 
-        static void UnwrapPicture(string picName)
-        {
             var dirPath = Directory.GetCurrentDirectory();
-            var filePath = dirPath + $"/etc/{picName}";
+            var filePath = dirPath + $"/etc/{pictureName}";
             if (!Directory.Exists(dirPath))
             {
                 Console.WriteLine("Error. Incorrect path");
@@ -45,6 +51,20 @@ namespace PicUnlocker
                 return;
             }
 
+            //var enviromentSystem = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
+            if (needToUnwrap)
+            {
+                UnwrapPicture(filePath);
+
+            }
+            else
+            {
+                FloydSteinbergDithering(filePath, paletteSize);
+            }
+        }
+
+        static void UnwrapPicture(string filePath)
+        {
             var pngUnwrapper = new PngUnwrapper();
 
             var picBytes = pngUnwrapper.GetBytesFromPicture(filePath);
@@ -57,10 +77,10 @@ namespace PicUnlocker
             Console.WriteLine($"Main chunks: {BitConverter.ToString(chunks).Replace("-", " ")}\n");
             Console.WriteLine($"Tail: {BitConverter.ToString(picTailBytes).Replace("-", " ")}\n");
 
-            FloydSteinbergDithering(filePath);
+           
         }
 
-        static void FloydSteinbergDithering(string filePath)
+        static void FloydSteinbergDithering(string filePath, int bitPaletteSize)
         {
             ///
             /// Floyd–Steinberg dithering
@@ -70,21 +90,21 @@ namespace PicUnlocker
 
             var pixelsImage = new Bitmap(Image.FromFile(filePath));
             var newImage = new Bitmap(pixelsImage.Width, pixelsImage.Height);
-            var bitPaleteSize = 1;
 
             for (int y = 0; y < pixelsImage.Height; y++)
             {
                 for (int x = 0; x < pixelsImage.Width; x++)
                 {
                     var currentPixel = pixelsImage.GetPixel(x, y);
-                    var r = Math.Round(Convert.ToDouble(currentPixel.R / 255)) * 255;
-                    var g = Math.Round(Convert.ToDouble(currentPixel.G / 255)) * 255;
-                    var b = Math.Round(Convert.ToDouble(currentPixel.B / 255)) * 255;
+                    var r = Math.Round(Convert.ToDouble(bitPaletteSize * currentPixel.R / 255)) * 255 / bitPaletteSize;
+                    var g = Math.Round(Convert.ToDouble(bitPaletteSize * currentPixel.G / 255)) * 255 / bitPaletteSize;
+                    var b = Math.Round(Convert.ToDouble(bitPaletteSize * currentPixel.B / 255)) * 255 / bitPaletteSize;
                     Color newPixelData = Color.FromArgb((int)r, (int)g, (int)b);
                     newImage.SetPixel(x, y, newPixelData);
                 }
             }
             newImage.Save("test_new.jpg");
+            Console.WriteLine("Done");
         }
 
         static void CalculateDitheringError(uint x, uint y)
