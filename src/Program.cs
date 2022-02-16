@@ -10,7 +10,22 @@ namespace PicUnlocker
     {
         static void Main(string[] args)
         {
-            var pictureName = Environment.GetEnvironmentVariable("PIC_NAME");
+            var pictureName = string.Empty;
+
+            if (args.Length != 0)
+            {
+               pictureName = args[0];
+            }           
+            else
+            {
+                pictureName = Environment.GetEnvironmentVariable("PIC_NAME");
+            }
+            if (string.IsNullOrEmpty(pictureName))
+            {
+                Console.Error.WriteLine("No picture name given");
+                return;
+            }
+            //var enviromentSystem = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
             UnwrapPicture(pictureName);
         }
 
@@ -54,6 +69,7 @@ namespace PicUnlocker
             ///     3 / 16   5 / 16   1 / 16
 
             var pixelsImage = new Bitmap(Image.FromFile(filePath));
+            var newImage = new Bitmap(pixelsImage.Width, pixelsImage.Height);
             var bitPaleteSize = 1;
 
             for (int y = 0; y < pixelsImage.Height; y++)
@@ -61,13 +77,14 @@ namespace PicUnlocker
                 for (int x = 0; x < pixelsImage.Width; x++)
                 {
                     var currentPixel = pixelsImage.GetPixel(x, y);
-                    Console.WriteLine($"Current position: {x}, {y}");
-
-                    var output = $"R:{currentPixel.R.ToString()}|G:{currentPixel.G.ToString()}|B:{currentPixel.B.ToString()}";
-
-                    Console.WriteLine(output);
+                    var r = Math.Round(Convert.ToDouble(currentPixel.R / 255)) * 255;
+                    var g = Math.Round(Convert.ToDouble(currentPixel.G / 255)) * 255;
+                    var b = Math.Round(Convert.ToDouble(currentPixel.B / 255)) * 255;
+                    Color newPixelData = Color.FromArgb((int)r, (int)g, (int)b);
+                    newImage.SetPixel(x, y, newPixelData);
                 }
-            }            
+            }
+            newImage.Save("test_new.jpg");
         }
 
         static void CalculateDitheringError(uint x, uint y)

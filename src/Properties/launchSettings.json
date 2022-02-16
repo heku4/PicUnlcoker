@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "PicUnlocker": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "PIC_NAME": "test.png"
+      }
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
