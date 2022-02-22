@@ -2,6 +2,7 @@
   "profiles": {
     "PicUnlocker": {
       "commandName": "Project",
+      "commandLineArgs": "test.jpg 4 -d",
       "environmentVariables": {
         "PIC_NAME": "test.png"
       }

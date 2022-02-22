@@ -120,28 +120,68 @@ namespace PicUnlocker
             ///                 X      7/16
             ///     3 / 16   5 / 16   1 / 16
 
+            double FirstErrorWeight = 7 / 16;
+            double SecondErrorWeight = 3 / 16;
+            double ThirdErrorWeight = 5 / 16;
+            double LastErrorWeight = 1 / 16;
+
             var pixelsImage = new Bitmap(Image.FromFile(filePath));
             var newImage = new Bitmap(pixelsImage.Width, pixelsImage.Height);
 
             for (int y = 0; y < pixelsImage.Height - 1; y++)
             {
-                for (int x = 0; x < pixelsImage.Width - 1; x++)
+                for (int x = 1; x < pixelsImage.Width - 1; x++)
                 {
 
                     var currentPixel = pixelsImage.GetPixel(x, y);
+                    {
+                        var newColors = CalculateChannelValueWithError(currentPixel.R, currentPixel.G, currentPixel.B, paletteBitSize, FirstErrorWeight);
+                        Color newPixelData = Color.FromArgb(newColors.R, newColors.G, newColors.B);
+                        newImage.SetPixel(x + 1, y, newPixelData);
+                    }
+                    {
+                        var newColors = CalculateChannelValueWithError(currentPixel.R, currentPixel.G, currentPixel.B, paletteBitSize, SecondErrorWeight);
+                        var newPixelData = Color.FromArgb(newColors.R, newColors.G, newColors.B);
+                        newImage.SetPixel(x - 1, y + 1, newPixelData);
+                    }
+                    
+                    {
+                        var newColors = CalculateChannelValueWithError(currentPixel.R, currentPixel.G, currentPixel.B, paletteBitSize, ThirdErrorWeight);
+                        var newPixelData = Color.FromArgb(newColors.R, newColors.G, newColors.B);
+                        newImage.SetPixel(x, y + 1, newPixelData);
+                    }
+                    
+                    {
+                        var newColors = CalculateChannelValueWithError(currentPixel.R, currentPixel.G, currentPixel.B, paletteBitSize, LastErrorWeight);
+                        var newPixelData = Color.FromArgb(newColors.R, newColors.G, newColors.B);
+                        newImage.SetPixel(x + 1, y + 1, newPixelData);
+                    }
+                    
 
-                    var nextPixelByX = pixelsImage.GetPixel(x + 1, y + 1);
-                    var firstPixelByY = pixelsImage.GetPixel(x - 1, y + 1);
-                    var secondPixelByY = pixelsImage.GetPixel(x, y + 1);
-                    var lastPixelByY = pixelsImage.GetPixel(x + 1, y + 1);
-
-                    var errorR = currentPixel.R - Math.Round(Convert.ToDouble(paletteBitSize * currentPixel.R / 255)) * 255 / paletteBitSize;
-                    var errorG = currentPixel.G - Math.Round(Convert.ToDouble(paletteBitSize * currentPixel.G / 255)) * 255 / paletteBitSize;
-                    var errorB = currentPixel.B - Math.Round(Convert.ToDouble(paletteBitSize * currentPixel.B / 255)) * 255 / paletteBitSize;
                 }
             }
             newImage.Save("test_new.jpg");
             Console.WriteLine("Done");
+        }
+
+        private static (int R, int G, int B) CalculateChannelValueWithError(int channelRValue, int channelGValue, int channelBValue, int paletteBitSize, double errorWeight)
+        {
+            var channelRError = channelRValue - CalculateErrorOnChannel(channelRValue, paletteBitSize);
+            var updatedChannelRValue = channelRValue + channelRError * errorWeight; 
+
+            var channelGError = channelGValue - CalculateErrorOnChannel(channelGValue, paletteBitSize);
+            var updatedChannelGValue = channelGValue + channelGError * errorWeight; 
+
+            var channelBError = channelBValue - CalculateErrorOnChannel(channelBValue, paletteBitSize);
+            var updatedChannelBValue = channelBValue + channelBError * errorWeight;
+
+           // Console.WriteLine($"R: {(int)updatedChannelRValue}, G: {(int)updatedChannelGValue}, B: {(int)updatedChannelBValue}");
+            return (R: (int)updatedChannelRValue, G: (int)updatedChannelGValue, B: (int)updatedChannelBValue);
+        }
+
+        private static int CalculateErrorOnChannel(int channelValue, int paletteBitSize)
+        {
+            return (int)(Math.Round(Convert.ToDouble(paletteBitSize * channelValue / 255)) * 255 / paletteBitSize);
         }
         #endregion
     }
