@@ -12,14 +12,21 @@ namespace PicUnlocker
         {
             var pictureName = string.Empty;
             int paletteSize = 0;
-            bool needToUnwrap = true;
+
+            bool needToQuantitize = false;
+            bool needToDithering = false;
+
             if (args.Length > 1)
             {
                 pictureName = args[0];
                 int.TryParse(args[1], out paletteSize);
-                if ( args[2] == "-d")
+                if ( args[2] == "-q")
                 {
-                    needToUnwrap = false;
+                    needToQuantitize = true;
+                }
+                if (args[2] == "-d")
+                {
+                    needToDithering = true;
                 }
             }
 
@@ -52,14 +59,18 @@ namespace PicUnlocker
             }
 
             //var enviromentSystem = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
-            if (needToUnwrap)
+            if (needToQuantitize)
             {
-                UnwrapPicture(filePath);
-
+                PerPixelQuantitation(filePath, paletteSize);
+                
+            }
+            else if(needToDithering)
+            {
+                FloydSteinbergDithering(filePath, paletteSize);
             }
             else
             {
-                FloydSteinbergDithering(filePath, paletteSize);
+                UnwrapPicture(filePath);
             }
         }
 
@@ -80,14 +91,9 @@ namespace PicUnlocker
            
         }
 
-        static void FloydSteinbergDithering(string filePath, int bitPaletteSize)
+        #region Only for Windows OS
+        static void PerPixelQuantitation(string filePath, int paletteBitSize)
         {
-            ///
-            /// Floyd–Steinberg dithering
-            /// Only for windows os
-            ///                 X      7/16
-            ///     3 / 16   5 / 16   1 / 16
-
             var pixelsImage = new Bitmap(Image.FromFile(filePath));
             var newImage = new Bitmap(pixelsImage.Width, pixelsImage.Height);
 
@@ -96,9 +102,9 @@ namespace PicUnlocker
                 for (int x = 0; x < pixelsImage.Width; x++)
                 {
                     var currentPixel = pixelsImage.GetPixel(x, y);
-                    var r = Math.Round(Convert.ToDouble(bitPaletteSize * currentPixel.R / 255)) * 255 / bitPaletteSize;
-                    var g = Math.Round(Convert.ToDouble(bitPaletteSize * currentPixel.G / 255)) * 255 / bitPaletteSize;
-                    var b = Math.Round(Convert.ToDouble(bitPaletteSize * currentPixel.B / 255)) * 255 / bitPaletteSize;
+                    var r = Math.Round(Convert.ToDouble(paletteBitSize * currentPixel.R / 255)) * 255 / paletteBitSize;
+                    var g = Math.Round(Convert.ToDouble(paletteBitSize * currentPixel.G / 255)) * 255 / paletteBitSize;
+                    var b = Math.Round(Convert.ToDouble(paletteBitSize * currentPixel.B / 255)) * 255 / paletteBitSize;
                     Color newPixelData = Color.FromArgb((int)r, (int)g, (int)b);
                     newImage.SetPixel(x, y, newPixelData);
                 }
@@ -107,9 +113,36 @@ namespace PicUnlocker
             Console.WriteLine("Done");
         }
 
-        static void CalculateDitheringError(uint x, uint y)
+        static void FloydSteinbergDithering(string filePath, int paletteBitSize)
         {
+            ///
+            /// Floyd–Steinberg dithering
+            ///                 X      7/16
+            ///     3 / 16   5 / 16   1 / 16
 
+            var pixelsImage = new Bitmap(Image.FromFile(filePath));
+            var newImage = new Bitmap(pixelsImage.Width, pixelsImage.Height);
+
+            for (int y = 0; y < pixelsImage.Height - 1; y++)
+            {
+                for (int x = 0; x < pixelsImage.Width - 1; x++)
+                {
+
+                    var currentPixel = pixelsImage.GetPixel(x, y);
+
+                    var nextPixelByX = pixelsImage.GetPixel(x + 1, y + 1);
+                    var firstPixelByY = pixelsImage.GetPixel(x - 1, y + 1);
+                    var secondPixelByY = pixelsImage.GetPixel(x, y + 1);
+                    var lastPixelByY = pixelsImage.GetPixel(x + 1, y + 1);
+
+                    var errorR = currentPixel.R - Math.Round(Convert.ToDouble(paletteBitSize * currentPixel.R / 255)) * 255 / paletteBitSize;
+                    var errorG = currentPixel.G - Math.Round(Convert.ToDouble(paletteBitSize * currentPixel.G / 255)) * 255 / paletteBitSize;
+                    var errorB = currentPixel.B - Math.Round(Convert.ToDouble(paletteBitSize * currentPixel.B / 255)) * 255 / paletteBitSize;
+                }
+            }
+            newImage.Save("test_new.jpg");
+            Console.WriteLine("Done");
         }
+        #endregion
     }
 }
