@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PicUnlocker.Models;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -47,48 +48,59 @@ namespace PicUnlocker.Services
 
             var pixelsImage = new Bitmap(Image.FromFile(filePath));
             var newImage = new Bitmap(pixelsImage.Width, pixelsImage.Height);
+            var bufferImage = new IntMap(pixelsImage.Width, pixelsImage.Height);
+
+            for (int y = 0; y < pixelsImage.Height; y++)
+            {
+                for (int x = 0; x < pixelsImage.Width; x++)
+                {
+                    var pixel = pixelsImage.GetPixel(x, y);
+                    bufferImage.SetLongPixel(x, y, new PixelLongColors(pixel.R, pixel.G, pixel.B));
+                }
+            }
+            
+
 
             for (int y = 0; y < pixelsImage.Height - 1; y++)
             {
                 for (int x = 1; x < pixelsImage.Width - 1; x++)
                 {
-
-                    var currentPixel = pixelsImage.GetPixel(x, y);
+                    var currentPixel = bufferImage.GetLongPixel(x, y);
                     var newR = CalculateQuantitation(currentPixel.R, paletteBitSize);
                     var newG = CalculateQuantitation(currentPixel.G, paletteBitSize);
                     var newB = CalculateQuantitation(currentPixel.B, paletteBitSize);
-                    Color newPixelData = Color.FromArgb(newR, newG, newB);
-                    newImage.SetPixel(x, y, newPixelData);
+                    
+                    newImage.SetPixel(x, y, Color.FromArgb(newR, newB, newG));
 
                     var currentErrors = CalculateError(currentPixel.R, currentPixel.G, currentPixel.B, paletteBitSize);
 
-                    var nextPixel = pixelsImage.GetPixel(x + 1, y);
+                    var nextPixel = bufferImage.GetLongPixel(x + 1, y);
                     newR = CalculateColorWithError(nextPixel.R, currentErrors.R, FirstErrorWeight);
                     newG = CalculateColorWithError(nextPixel.G, currentErrors.G, FirstErrorWeight);
                     newB = CalculateColorWithError(nextPixel.B, currentErrors.B, FirstErrorWeight);
-                    newPixelData = Color.FromArgb(newR, newG, newB);
-                    newImage.SetPixel(x + 1, y, newPixelData);
 
-                    nextPixel = pixelsImage.GetPixel(x + 1, y);
+                    bufferImage.SetLongPixel(x + 1, y, new PixelLongColors(newR, newB, newG));
+
+                    nextPixel = bufferImage.GetLongPixel(x - 1, y + 1);
                     newR = CalculateColorWithError(nextPixel.R, currentErrors.R, SecondErrorWeight);
                     newG = CalculateColorWithError(nextPixel.G, currentErrors.G, SecondErrorWeight);
                     newB = CalculateColorWithError(nextPixel.B, currentErrors.B, SecondErrorWeight);
-                    newPixelData = Color.FromArgb(newR, newG, newB);
-                    newImage.SetPixel(x - 1, y + 1, newPixelData);
 
-                    nextPixel = pixelsImage.GetPixel(x + 1, y);
+                    bufferImage.SetLongPixel(x - 1, y + 1, new PixelLongColors(newR, newB, newG));
+
+                    nextPixel = bufferImage.GetLongPixel(x, y + 1);
                     newR = CalculateColorWithError(nextPixel.R, currentErrors.R, ThirdErrorWeight);
                     newG = CalculateColorWithError(nextPixel.G, currentErrors.G, ThirdErrorWeight);
                     newB = CalculateColorWithError(nextPixel.B, currentErrors.B, ThirdErrorWeight);
-                    newPixelData = Color.FromArgb(newR, newG, newB);
-                    newImage.SetPixel(x, y + 1, newPixelData);
 
-                    nextPixel = pixelsImage.GetPixel(x + 1, y);
+                    bufferImage.SetLongPixel(x, y + 1, new PixelLongColors(newR, newB, newG));
+
+                    nextPixel = bufferImage.GetLongPixel(x + 1, y + 1);
                     newR = CalculateColorWithError(nextPixel.R, currentErrors.R, LastErrorWeight);
                     newG = CalculateColorWithError(nextPixel.G, currentErrors.G, LastErrorWeight);
                     newB = CalculateColorWithError(nextPixel.B, currentErrors.B, LastErrorWeight);
-                    newPixelData = Color.FromArgb(newR, newG, newB);
-                    newImage.SetPixel(x + 1, y + 1, newPixelData);
+
+                    bufferImage.SetLongPixel(x + 1, y + 1, new PixelLongColors(newR, newB, newG));
                 }
             }
             newImage.Save("test_new.jpg");

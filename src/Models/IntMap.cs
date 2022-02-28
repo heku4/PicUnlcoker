@@ -6,26 +6,27 @@ using System.Threading.Tasks;
 
 namespace PicUnlocker.Models
 {
+    internal record PixelLongColors(int R, int G, int B);
+    
     internal class IntMap
     {
-        internal uint Width;
-        internal uint Height;
+        protected int Width;
+        protected int Height;
         private PixelLongColors[,] longPixels;
 
-        internal IntMap(uint sizeX, uint sizeY)
+        internal IntMap(int sizeX, int sizeY)
         {
             Width = sizeX;
             Height = sizeY;
             longPixels =  new PixelLongColors[sizeX, sizeY];
-        }
-        internal record PixelLongColors(Int16 R, Int16 G, Int16 B);
+        }        
 
-        internal void SetLongPixel(uint x, uint y, PixelLongColors PixelLongData)
+        internal void SetLongPixel(int x, int y, PixelLongColors PixelLongData)
         {
             longPixels[x, y] = PixelLongData;
         }
 
-        internal PixelLongColors GetLongPixel(uint x, uint y)
+        internal PixelLongColors GetLongPixel(int x, int y)
         {
             return longPixels[x, y];
         }
