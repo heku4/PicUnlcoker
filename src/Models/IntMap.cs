@@ -16,7 +16,7 @@ namespace PicUnlocker.Models
         {
             Width = sizeX;
             Height = sizeY;
-            var arr = new PixelLongColors[sizeX, sizeY];
+            longPixels =  new PixelLongColors[sizeX, sizeY];
         }
         internal record PixelLongColors(Int16 R, Int16 G, Int16 B);
 
