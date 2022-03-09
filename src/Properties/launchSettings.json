@@ -1,14 +1,28 @@
 {
   "profiles": {
-    "PicUnlocker": {
+    "WSL": {
+      "commandName": "WSL2",
+      "environmentVariables": {
+        "PIC_NAME": "test.png"
+      },
+      "distributionName": ""
+    },
+    "Docker": {
+      "commandName": "Docker"
+    },
+    "Dithering": {
       "commandName": "Project",
       "commandLineArgs": "test.jpg 4 -d",
       "environmentVariables": {
         "PIC_NAME": "test.png"
       }
     },
-    "Docker": {
-      "commandName": "Docker"
+    "Quantitation": {
+      "commandName": "Project",
+      "commandLineArgs": "test.jpg 4 -q",
+      "environmentVariables": {
+        "PIC_NAME": "test.png"
+      }
     }
   }
 }
