@@ -23,9 +23,9 @@ namespace PicUnlocker.Services
                 for (int x = 0; x < pixelsImage.Width; x++)
                 {
                     var currentPixel = pixelsImage.GetPixel(x, y);
-                    var r = Math.Round(Convert.ToDouble(paletteBitSize * currentPixel.R / 255)) * 255 / paletteBitSize;
-                    var g = Math.Round(Convert.ToDouble(paletteBitSize * currentPixel.G / 255)) * 255 / paletteBitSize;
-                    var b = Math.Round(Convert.ToDouble(paletteBitSize * currentPixel.B / 255)) * 255 / paletteBitSize;
+                    var r = (int)(Math.Round(paletteBitSize * currentPixel.R / 255.0) * Math.Round(255.0 / paletteBitSize));
+                    var g = (int)(Math.Round(paletteBitSize * currentPixel.G / 255.0) * Math.Round(255.0 / paletteBitSize));
+                    var b = (int)(Math.Round(paletteBitSize * currentPixel.B / 255.0) * Math.Round(255.0 / paletteBitSize));
                     Color newPixelData = Color.FromArgb((int)r, (int)g, (int)b);
                     newImage.SetPixel(x, y, newPixelData);
                 }
@@ -109,15 +109,19 @@ namespace PicUnlocker.Services
 
         private static (int R, int G, int B) CalculateError(int channelRValue, int channelGValue, int channelBValue, int paletteBitSize)
         {
+           
             var channelRError = channelRValue - CalculateQuantitation(channelRValue, paletteBitSize);
             var updatedChannelRValue = channelRValue + channelRError;
-
+            
             var channelGError = channelGValue - CalculateQuantitation(channelGValue, paletteBitSize);
             var updatedChannelGValue = channelGValue + channelGError;
-
+            
             var channelBError = channelBValue - CalculateQuantitation(channelBValue, paletteBitSize);
             var updatedChannelBValue = channelBValue + channelBError;
-
+            if(updatedChannelBValue > 255 || updatedChannelGValue > 255 || updatedChannelRValue > 255)
+            {
+                throw new Exception("pixel data overflow");
+            }
             return (R: (int)updatedChannelRValue, G: (int)updatedChannelGValue, B: (int)updatedChannelBValue);
         }
 
@@ -130,7 +134,7 @@ namespace PicUnlocker.Services
 
         private static int CalculateQuantitation(int channelValue, int paletteBitSize)
         {
-            return (int)(Math.Round(Convert.ToDouble(paletteBitSize * channelValue / 255)) * 255 / paletteBitSize);
+            return (int)(Math.Round(paletteBitSize * channelValue / 255.0) * Math.Round(255.0 / paletteBitSize));
         }
         #endregion
     }
