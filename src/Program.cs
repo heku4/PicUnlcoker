@@ -149,21 +149,21 @@ namespace PicUnlocker
                     newPixelData = Color.FromArgb(newR, newG, newB);
                     newImage.SetPixel(x + 1, y, newPixelData);
 
-                    nextPixel = pixelsImage.GetPixel(x + 1, y);
+                    nextPixel = pixelsImage.GetPixel(x - 1, y + 1);
                     newR = CalculateColorWithError(nextPixel.R, currentErrors.R, SecondErrorWeight);
                     newG = CalculateColorWithError(nextPixel.G, currentErrors.G, SecondErrorWeight);
                     newB = CalculateColorWithError(nextPixel.B, currentErrors.B, SecondErrorWeight);
                     newPixelData = Color.FromArgb(newR, newG, newB);
                     newImage.SetPixel(x - 1, y + 1, newPixelData);
 
-                    nextPixel = pixelsImage.GetPixel(x + 1, y);
+                    nextPixel = pixelsImage.GetPixel(x , y + 1);
                     newR = CalculateColorWithError(nextPixel.R, currentErrors.R, ThirdErrorWeight);
                     newG = CalculateColorWithError(nextPixel.G, currentErrors.G, ThirdErrorWeight);
                     newB = CalculateColorWithError(nextPixel.B, currentErrors.B, ThirdErrorWeight);
                     newPixelData = Color.FromArgb(newR, newG, newB);
                     newImage.SetPixel(x, y + 1, newPixelData);
 
-                    nextPixel = pixelsImage.GetPixel(x + 1, y);
+                    nextPixel = pixelsImage.GetPixel(x + 1, y + 1);
                     newR = CalculateColorWithError(nextPixel.R, currentErrors.R, LastErrorWeight);
                     newG = CalculateColorWithError(nextPixel.G, currentErrors.G, LastErrorWeight);
                     newB = CalculateColorWithError(nextPixel.B, currentErrors.B, LastErrorWeight);
@@ -178,27 +178,28 @@ namespace PicUnlocker
         private static (int R, int G, int B) CalculateError(int channelRValue, int channelGValue, int channelBValue, int paletteBitSize)
         {
             var channelRError = channelRValue - CalculateQuantitation(channelRValue, paletteBitSize);
-            var updatedChannelRValue = channelRValue + channelRError; 
+            //var updatedChannelRValue = channelRValue + channelRError; 
 
             var channelGError = channelGValue - CalculateQuantitation(channelGValue, paletteBitSize);
-            var updatedChannelGValue = channelGValue + channelGError; 
+            //var updatedChannelGValue = channelGValue + channelGError; 
 
             var channelBError = channelBValue - CalculateQuantitation(channelBValue, paletteBitSize);
-            var updatedChannelBValue = channelBValue + channelBError;
+            //var updatedChannelBValue = channelBValue + channelBError;
             
-            return (R: (int)updatedChannelRValue, G: (int)updatedChannelGValue, B: (int)updatedChannelBValue);
+            return (R: (int)channelRError, G: (int)channelGError, B: (int)channelBError);
         }
 
         private static int CalculateColorWithError(int channelValue, int channelError, double errorWeight)
         {
-            var updatedChannelValue = channelValue + channelError * errorWeight;
+            var updatedChannelValue = channelValue + (channelError * errorWeight);
 
-            return (int)updatedChannelValue;
+            return (int)updatedChannelValue > 255 ? 255 : (int)updatedChannelValue;
         }
 
         private static int CalculateQuantitation(int channelValue, int paletteBitSize)
         {
-            return (int)(Math.Round(paletteBitSize * channelValue / 255.0) * Math.Round(255.0 / paletteBitSize));
+            var quantitation = (int)(Math.Round(paletteBitSize * channelValue / 255.0) * Math.Round(255.0 / paletteBitSize));
+            return quantitation > 255 ? 255 : quantitation;
         }
         #endregion
     }
