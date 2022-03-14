@@ -102,9 +102,9 @@ namespace PicUnlocker
                 for (int x = 0; x < pixelsImage.Width; x++)
                 {
                     var currentPixel = pixelsImage.GetPixel(x, y);
-                    var r = (int)(Math.Round(paletteBitSize * currentPixel.R / 255.0) * Math.Round(255.0 / paletteBitSize));
-                    var g = (int)(Math.Round(paletteBitSize * currentPixel.G / 255.0) * Math.Round(255.0 / paletteBitSize));
-                    var b = (int)(Math.Round(paletteBitSize * currentPixel.B / 255.0) * Math.Round(255.0 / paletteBitSize));
+                    var r = (int)(Math.Round(paletteBitSize * currentPixel.R / 255.0) * (255.0 / paletteBitSize));
+                    var g = (int)(Math.Round(paletteBitSize * currentPixel.G / 255.0) * (255.0 / paletteBitSize));
+                    var b = (int)(Math.Round(paletteBitSize * currentPixel.B / 255.0) * (255.0 / paletteBitSize));
                     Color newPixelData = Color.FromArgb((int)r, (int)g, (int)b);
                     newImage.SetPixel(x, y, newPixelData);
                 }
@@ -178,13 +178,10 @@ namespace PicUnlocker
         private static (int R, int G, int B) CalculateError(int channelRValue, int channelGValue, int channelBValue, int paletteBitSize)
         {
             var channelRError = channelRValue - CalculateQuantitation(channelRValue, paletteBitSize);
-            //var updatedChannelRValue = channelRValue + channelRError; 
 
             var channelGError = channelGValue - CalculateQuantitation(channelGValue, paletteBitSize);
-            //var updatedChannelGValue = channelGValue + channelGError; 
 
             var channelBError = channelBValue - CalculateQuantitation(channelBValue, paletteBitSize);
-            //var updatedChannelBValue = channelBValue + channelBError;
             
             return (R: (int)channelRError, G: (int)channelGError, B: (int)channelBError);
         }
@@ -192,14 +189,25 @@ namespace PicUnlocker
         private static int CalculateColorWithError(int channelValue, int channelError, double errorWeight)
         {
             var updatedChannelValue = channelValue + (channelError * errorWeight);
+            if(updatedChannelValue < 0)
+            {
+                Console.WriteLine("Value must be >= 0");
+                return 0;
+            }
+            if(updatedChannelValue > 255)
+            {
+                Console.WriteLine("Value must be =< 255");
+                return 255;
+            }
 
-            return (int)updatedChannelValue > 255 ? 255 : (int)updatedChannelValue;
+            return (int)updatedChannelValue;
         }
 
         private static int CalculateQuantitation(int channelValue, int paletteBitSize)
         {
-            var quantitation = (int)(Math.Round(paletteBitSize * channelValue / 255.0) * Math.Round(255.0 / paletteBitSize));
-            return quantitation > 255 ? 255 : quantitation;
+            var quantitation = (int)(Math.Round(paletteBitSize * channelValue / 255.0) * (255.0 / paletteBitSize));
+            
+            return quantitation;
         }
         #endregion
     }
