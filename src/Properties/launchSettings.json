@@ -1,25 +1,15 @@
 {
   "profiles": {
-    "WSL": {
-      "commandName": "WSL2",
-      "environmentVariables": {
-        "PIC_NAME": "test.png"
-      },
-      "distributionName": ""
-    },
-    "Docker": {
-      "commandName": "Docker"
-    },
-    "Dithering": {
+    "Quantitation": {
       "commandName": "Project",
-      "commandLineArgs": "test.jpg 4 -d",
+      "commandLineArgs": "test.jpg 1 -q",
       "environmentVariables": {
         "PIC_NAME": "test.png"
       }
     },
-    "Quantitation": {
+    "Dithering": {
       "commandName": "Project",
-      "commandLineArgs": "test.jpg 4 -q",
+      "commandLineArgs": "test.jpg 1 -d",
       "environmentVariables": {
         "PIC_NAME": "test.png"
       }
