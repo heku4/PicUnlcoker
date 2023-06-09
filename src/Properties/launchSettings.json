@@ -1,8 +1,5 @@
 {
   "profiles": {
-    "Docker": {
-      "commandName": "Docker"
-    },
     "Quantitation": {
       "commandName": "Project",
       "commandLineArgs": "test.jpg 1 -q",

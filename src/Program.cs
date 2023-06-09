@@ -6,38 +6,28 @@ using PicUnlocker.Services;
 
 namespace PicUnlocker
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var pictureName = string.Empty;
-            int paletteSize = 0;
+            var paletteSize = 0;
 
-            bool needToQuantitize = false;
-            bool needToDithering = false;
+            var needToQuantitize = false;
+            var needToDithering = false;
 
             if (args.Length > 1)
             {
                 pictureName = args[0];
                 int.TryParse(args[1], out paletteSize);
-                if ( args[2] == "-q")
-                {
-                    needToQuantitize = true;
-                }
-                if (args[2] == "-d")
-                {
-                    needToDithering = true;
-                }
+                if (args[2] == "-q") needToQuantitize = true;
+                if (args[2] == "-d") needToDithering = true;
             }
 
             if (args.Length != 0)
-            {
-               pictureName = args[0];
-            }           
+                pictureName = args[0];
             else
-            {
                 pictureName = Environment.GetEnvironmentVariable("PIC_NAME");
-            }
             if (string.IsNullOrEmpty(pictureName))
             {
                 Console.Error.WriteLine("No picture name given");
@@ -60,21 +50,14 @@ namespace PicUnlocker
 
             //var enviromentSystem = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
             if (needToQuantitize)
-            {
                 DitheringUtils.PerPixelQuantitation(filePath, paletteSize);
-                
-            }
-            else if(needToDithering)
-            {
+            else if (needToDithering)
                 DitheringUtils.FloydSteinbergDithering(filePath, paletteSize);
-            }
             else
-            {
                 UnwrapPicture(filePath);
-            }
         }
 
-        static void UnwrapPicture(string filePath)
+        private static void UnwrapPicture(string filePath)
         {
             var pngUnwrapper = new PngUnwrapper();
 
@@ -87,10 +70,6 @@ namespace PicUnlocker
             Console.WriteLine($"Signature: {BitConverter.ToString(picSignatureBytes).Replace("-", " ")}\n");
             Console.WriteLine($"Main chunks: {BitConverter.ToString(chunks).Replace("-", " ")}\n");
             Console.WriteLine($"Tail: {BitConverter.ToString(picTailBytes).Replace("-", " ")}\n");
-
-           
         }
-
-
     }
 }

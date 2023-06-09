@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace PicUnlocker.Models
 {
     internal record PixelLongColors(int R, int G, int B);
-    
+
     internal class IntMap
     {
         protected int Width;
@@ -18,8 +18,8 @@ namespace PicUnlocker.Models
         {
             Width = sizeX;
             Height = sizeY;
-            longPixels =  new PixelLongColors[sizeX, sizeY];
-        }        
+            longPixels = new PixelLongColors[sizeX, sizeY];
+        }
 
         internal void SetLongPixel(int x, int y, PixelLongColors PixelLongData)
         {
@@ -30,6 +30,5 @@ namespace PicUnlocker.Models
         {
             return longPixels[x, y];
         }
-
     }
 }
